@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NYC Accessibility</title>
+    
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <header>
+        <h1>NYC Accessibility</h1>
+    </header>
+
+    <main class="container">
+        <section class="filters-section">
+            <h2>Filter Places Based on Categories Below</h2>
+            <div class="filter-buttons">
+                <button class="filter-btn active" data-category="cooling">Cooling Stations</button>
+                <button class="filter-btn" data-category="activities">Activities</button>
+                <button class="filter-btn" data-category="trash">Trash Cans</button>
+                <button class="filter-btn" data-category="gas">Gas Stations</button>
+                <button class="filter-btn" data-category="libraries">Libraries</button>
+            </div>
+        </section>
+
+        <section class="map-section">
+            <div id="map"></div>
+        </section>
+
+        <section class="places-section">
+            <h2>Near You</h2>
+            <div id="places-list" class="places-list">
+                <p class="placeholder-text">Select a category or click a pin on the map to see local details.</p>
+            </div>
+        </section>
+    </main>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script src="script.js"></script>
+</body>
+</html>
