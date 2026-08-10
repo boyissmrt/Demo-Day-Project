@@ -19,16 +19,29 @@
         <section class="filters-section">
             <h2>Filter Places Based on Categories Below</h2>
             <div class="filter-buttons">
-                <button class="filter-btn active" data-category="cooling">Cooling Stations</button>
-                <button class="filter-btn" data-category="activities">Activities</button>
-                <button class="filter-btn" data-category="trash">Trash Cans</button>
-                <button class="filter-btn" data-category="gas">Gas Stations</button>
-                <button class="filter-btn" data-category="libraries">Libraries</button>
+                <a href="#cooling">
+                    <button class="filter-btn active" data-category="cooling">Cooling Stations</button>
+                </a>
+                <a href="#activities">
+                    <button class="filter-btn" data-category="activities">Activities</button>
+                </a>
+                <a href="#trash">
+                    <button class="filter-btn" data-category="trash">Trash Cans</button>
+
+                </a>
+                <a href="#gas">
+                    <button class="filter-btn" data-category="gas">Gas Stations</button>
+
+                </a>
+                <a href="#libraries">
+                    <button class="filter-btn" data-category="libraries">Libraries</button>
+
+                </a>
             </div>
         </section>
 
         <section class="map-section">
-            <div id="map"></div>
+            <div id="map" class="map"></div>
         </section>
 
         <section class="places-section">
@@ -36,6 +49,69 @@
             <div id="places-list" class="places-list">
                 <p class="placeholder-text">Select a category or click a pin on the map to see local details.</p>
             </div>
+        </section>
+
+        <section id="cooling">
+            <h2>Cooling Areas NYC</h2>
+            <p>
+                Find nearby cooling centers with air-conditioning to stay safe during periods of extreme heat.
+            </p>
+
+            <h3> Accessibility info </h3>
+            <ul>
+                <li>Wheelchair access</li>
+                <li>Elevator availability</li>
+                <li>Seating areas</li>
+                <li>Indoor air conditioning spaces</li>
+                <li>Free public bathrooms</li>
+            </ul>
+           
+            <h3> Things to Know </h3>
+            <ul>
+                <li>Hours and availability vary in different locations</li>
+                <li>Services can change during heat emergencies</li>
+                <li>Certain sites may be exclusively for certain ages </li>
+
+
+            </ul>
+
+            <h3 class="hours">Cooling Station Hours</h3>
+            <p> Hours vary by location. Whilst most centers operate from daytime to early evening hours, the schedules can be changed during heat emergencies.</p>
+
+            <a href="#map">
+            <button class = "map-btn"> View on map </button>
+            </a>
+            
+            <h3>Extra Help</h3>
+            <p class="help">For more questions in regards to a cooling center, you can call 311.</p>
+        </section>
+
+        <section id="activities">
+            <h2>NYC Activities</h2>
+            <a href="#map">
+            <button class = "map-btn"> View on map </button>
+            </a>
+        </section>
+
+        <section id="trash">
+            <h2>Trash/Recycling Locations</h2>
+            <a href="#map">
+            <button class = "map-btn"> View on map </button>
+            </a>
+        </section>
+
+        <section id="gas">
+            <h2>Gas Pump Locations</h2>
+            <a href="#map">
+                <button class = "map-btn"> View on map </button>
+            </a>
+        </section>
+
+        <section id="libraries">
+            <h2>NYC Libraries</h2>
+            <a href="#map">
+                <button class = "map-btn"> View on map </button>
+            </a>
         </section>
     </main>
 
