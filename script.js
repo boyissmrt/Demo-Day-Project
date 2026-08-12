@@ -250,17 +250,25 @@ fetch(coolingAPI)
 //Auto marker maker for activities (Parks , Entertainment, Food)
 
 const parksAPI = "https://data.cityofnewyork.us/resource/enfh-gkve.json?$limit=300";
-const funAPI = "https://overpass-api.de/api/interpreter";
+const funAPI = "https://maps.mail.ru/osm/tools/overpass/api/interpreter";
 const funQuery = `[out:json][timeout:25];
 (
-  nwr["leisure"="bowling_alley"](40.4774,-74.2591,40.9176,-73.7004);
-  nwr["leisure"="amusement_arcade"](40.4774,-74.2591,40.9176,-73.7004);
-  nwr["leisure"~"adult_gaming_centre|escape_game|ice_rink|miniature_golf"](40.4774,-74.2591,40.9176,-73.7004);
-  nwr["amenity"="cinema"](40.4774,-74.2591,40.9176,-73.7004);
-  nwr["sport"~"billiards|pool|laser_tag|darts"](40.4774,-74.2591,40.9176,-73.7004);
+  node["leisure"="bowling_alley"](40.4774,-74.2591,40.9176,-73.7004);
+  node["leisure"="amusement_arcade"](40.4774,-74.2591,40.9176,-73.7004);
+  node["leisure"~"adult_gaming_centre|escape_game|ice_rink|miniature_golf"](40.4774,-74.2591,40.9176,-73.7004);
+  node["amenity"="cinema"](40.4774,-74.2591,40.9176,-73.7004);
+  node["sport"~"billiards|pool|laser_tag|darts"](40.4774,-74.2591,40.9176,-73.7004);
 );
-out center 300;`;
+out 300;`;
 const foodAPI = "https://data.cityofnewyork.us/resource/43nn-pn8j.json?$where=latitude%20IS%20NOT%20NULL%20AND%20latitude!=%270%27&$limit=200";
+
+const funSpots = [
+  { name: "Chinatown Fair Family Fun Center", lat: 40.7142, lng: -73.9980, category: "amusement_arcade", address: "8 Mott Street" },
+  { name: "Dave & Buster's", lat: 40.7560, lng: -73.9888, category: "amusement_arcade", address: "234 West 42nd Street" },
+  { name: "The Escape Game", lat: 40.7505, lng: -73.9785, category: "escape_game", address: "295 Madison Avenue" },
+  { name: "SPIN New York", lat: 40.7408, lng: -73.9875, category: "table_tennis", address: "48 East 23rd Street" },
+  { name: "AMC Empire 25", lat: 40.7563, lng: -73.9897, category: "cinema", address: "234 West 42nd Street" }
+];
 
 const boroughMap = {
   'M': 'Manhattan', 
@@ -275,11 +283,10 @@ const boroughMap = {
   '5': 'Staten Island'
 };
 
-Promise.all([
-  fetch(parksAPI).then(res => res.ok ? res.json() : []).catch(() => []),
-  fetch(foodAPI).then(res => res.ok ? res.json() : []).catch(() => [])
-])
-.then(([parksData, foodData]) => {
+const activityLayerGroup = L.layerGroup().addTo(nycMap);
+
+function renderActivityMarkers(parksData, foodData) {
+  activityLayerGroup.clearLayers();
 
   if (Array.isArray(parksData)) {
     parksData.forEach(park => {
@@ -297,7 +304,7 @@ Promise.all([
           color: categoryColors.activities,
           fillColor: categoryColors.activities,
           fillOpacity: 0.8
-        }).addTo(nycMap);
+        }).addTo(activityLayerGroup);
 
         const typeStr = park.typecategory || park.type || '';
         parkMarker.bindPopup(`
@@ -321,7 +328,7 @@ Promise.all([
           color: "#27ae60",
           fillColor: "#2ecc71",
           fillOpacity: 0.8
-        }).addTo(nycMap);
+        }).addTo(activityLayerGroup);
 
         foodMarker.bindPopup(`
           <h3>${spot.dba || "Food Spot"}</h3>
@@ -333,30 +340,81 @@ Promise.all([
       }
     });
   }
+}
 
+const cachedActivities = JSON.parse(localStorage.getItem("nycActivities") || "null");
+if (cachedActivities) {
+  renderActivityMarkers(cachedActivities.parks, cachedActivities.food);
+}
+
+Promise.all([
+  fetch(parksAPI).then(res => res.ok ? res.json() : []).catch(() => []),
+  fetch(foodAPI).then(res => res.ok ? res.json() : []).catch(() => [])
+])
+.then(([parksData, foodData]) => {
+  if (parksData.length || foodData.length) {
+    localStorage.setItem("nycActivities", JSON.stringify({ parks: parksData, food: foodData }));
+    renderActivityMarkers(parksData, foodData);
+  }
 })
+.catch(error => console.error("Error combining activities APIs:", error));
+
+function addFunMarker(name, lat, lng, category, address) {
+  const funMarker = L.circleMarker([lat, lng], {
+    radius: 5,
+    color: "#16a085",
+    fillColor: "#1abc9c",
+    fillOpacity: 0.85
+  }).addTo(nycMap);
+
+  funMarker.bindPopup(`
+    <h3>${name}</h3>
+    <p><strong>Category:</strong> ${category}</p>
+    <p><strong>Type:</strong> ${category}</p>
+    <p><strong>Address:</strong> ${address}</p>
+  `);
+}
+
+funSpots.forEach(spot => {
+  addFunMarker(spot.name, spot.lat, spot.lng, spot.category, spot.address);
+});
+
+const cachedFunSpots = JSON.parse(localStorage.getItem("nycFunSpots") || "null");
+if (Array.isArray(cachedFunSpots)) {
+  cachedFunSpots.forEach(venue => {
+    const lat = parseFloat(venue.lat || venue.center?.lat);
+    const lng = parseFloat(venue.lon || venue.center?.lon);
+    if (!isNaN(lat) && !isNaN(lng)) {
+      addFunMarker(
+        venue.tags?.name || "Fun Activity Spot",
+        lat,
+        lng,
+        venue.tags?.leisure || venue.tags?.sport || "Recreation",
+        `${venue.tags?.['addr:housenumber'] || ''} ${venue.tags?.['addr:street'] || ''}`
+      );
+    }
+  });
+}
 
 fetch(funAPI, { method: "POST", body: "data=" + encodeURIComponent(funQuery) })
   .then(res => res.ok ? res.json() : [])
   .then(data => {
+    if (Array.isArray(data.elements) && data.elements.length) {
+      localStorage.setItem("nycFunSpots", JSON.stringify(data.elements));
+    }
     (data.elements || []).forEach(venue => {
       const lat = parseFloat(venue.lat || venue.center?.lat);
       const lng = parseFloat(venue.lon || venue.center?.lon);
 
       if (!isNaN(lat) && !isNaN(lng)) {
-        const funMarker = L.circleMarker([lat, lng], {
-          radius: 5,
-          color: "#16a085",
-          fillColor: "#1abc9c",
-          fillOpacity: 0.85
-        }).addTo(nycMap);
-
-        funMarker.bindPopup(`
-          <h3>${venue.tags?.name || "Fun Activity Spot"}</h3>
-          <p><strong>Category:</strong> ${venue.tags?.leisure || venue.tags?.sport || "Recreation"}</p>
-          <p><strong>Type:</strong> ${venue.tags?.sport || venue.tags?.leisure || "Activity Venue"}</p>
-          <p><strong>Address:</strong> ${venue.tags?.['addr:housenumber'] || ''} ${venue.tags?.['addr:street'] || ''}</p>
-        `);
+        addFunMarker(
+          venue.tags?.name || "Fun Activity Spot",
+          lat,
+          lng,
+          venue.tags?.leisure || venue.tags?.sport || "Recreation",
+          `${venue.tags?.['addr:housenumber'] || ''} ${venue.tags?.['addr:street'] || ''}`
+        );
       }
     });
   })
+  .catch(error => console.error("Error loading fun activities:", error));
