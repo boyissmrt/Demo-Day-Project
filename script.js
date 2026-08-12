@@ -17,7 +17,7 @@ const categoryColors = {
 //cooling marker setup
 
 let coolingMark = L.circleMarker([40.7345,-73.9995],{
-    radius: 8,
+    radius: 5,
     color: categoryColors.cooling,
     fillColor:categoryColors.cooling,
     fillOpacity: 0.8
@@ -54,7 +54,7 @@ coolingMark.bindPopup(`
 //activities marker
 
 let activityMark = L.circleMarker([40.74838,-74.0020],{
-    radius:8,
+    radius:5,
     color:categoryColors.activities,
     fillColor:categoryColors.activities,
     fillOpacity:.8
@@ -88,7 +88,7 @@ activityMark.bindPopup(`
 
 //trash marker
 let trashMark = L.circleMarker([40.7536,-73.9832],{
-    radius:8,
+    radius:5,
     color:categoryColors.trash,
     fillColor:categoryColors.trash,
     fillOpacity:.8
@@ -122,7 +122,7 @@ trashMark.bindPopup(`
 
 //gas station marker
 let gasMark = L.circleMarker([40.7567,-73.9980],{
-    radius:8,
+    radius:5,
     color:categoryColors.gas,
     fillColor:categoryColors.gas,
     fillOpacity:.8
@@ -151,11 +151,9 @@ gasMark.bindPopup(`
 `);
 
 
-
-
 //library marker
 let libraryMark = L.circleMarker([40.7532,-73.9822],{
-    radius:8,
+    radius:5,
     color:categoryColors.libraries,
     fillColor:categoryColors.libraries,
     fillOpacity:.8
@@ -188,3 +186,177 @@ libraryMark.bindPopup(`
         <li>Accessible seating</li>
     </ul>
 `);
+
+
+//auto marker maker for cooling
+
+const coolingAPI =
+    "https://services6.arcgis.com/yG5s3afENB5iO9fj/ArcGIS/rest/services/CoolingCenters_PROD_view/FeatureServer/0/query" +
+    "?where=1%3D1" +
+    "&outFields=*" +
+    "&returnGeometry=true" +
+    "&outSR=4326" +
+    "&f=json";
+
+fetch(coolingAPI)
+    .then(response => response.json())
+    .then(data => {
+
+       data.features.forEach(location => {
+
+
+    const latitude = location.geometry.y;
+    const longitude = location.geometry.x;
+
+    const marker = L.circleMarker([latitude, longitude], {
+        radius: 5,
+        color: categoryColors.cooling,
+        fillColor: categoryColors.cooling,
+        fillOpacity: 0.8
+    }).addTo(nycMap);
+
+    marker.bindPopup(`
+        <h3>${location.attributes.Facility_name}</h3>
+
+        <p>
+            <strong>Address:</strong>
+            ${location.attributes.Address}
+        </p>
+
+        <p>
+            <strong>Borough:</strong>
+            ${location.attributes.Borough_name}
+        </p>
+
+        <p>
+            <strong>Accessibility:</strong>
+            ${location.attributes.Accessible}
+        </p>
+
+        <p>
+            <strong>Phone:</strong>
+            ${location.attributes.Phone}
+        </p>
+    `);
+
+});
+
+    })
+    .catch(error => {
+        console.error("Error loading cooling centers:", error);
+    });
+
+
+//Auto marker maker for activities (Parks , Entertainment, Food)
+
+const parksAPI = "https://data.cityofnewyork.us/resource/enfh-gkve.json?$limit=300";
+const funAPI = "https://overpass-api.de/api/interpreter";
+const funQuery = `[out:json][timeout:25];
+(
+  nwr["leisure"="bowling_alley"](40.4774,-74.2591,40.9176,-73.7004);
+  nwr["leisure"="amusement_arcade"](40.4774,-74.2591,40.9176,-73.7004);
+  nwr["leisure"~"adult_gaming_centre|escape_game|ice_rink|miniature_golf"](40.4774,-74.2591,40.9176,-73.7004);
+  nwr["amenity"="cinema"](40.4774,-74.2591,40.9176,-73.7004);
+  nwr["sport"~"billiards|pool|laser_tag|darts"](40.4774,-74.2591,40.9176,-73.7004);
+);
+out center 300;`;
+const foodAPI = "https://data.cityofnewyork.us/resource/43nn-pn8j.json?$where=latitude%20IS%20NOT%20NULL%20AND%20latitude!=%270%27&$limit=200";
+
+const boroughMap = {
+  'M': 'Manhattan', 
+  'B': 'Brooklyn', 
+  'Q': 'Queens', 
+  'X': 'Bronx', 
+  'R': 'Staten Island',
+  '1': 'Manhattan',
+  '2': 'Bronx',
+  '3': 'Brooklyn',
+  '4': 'Queens',
+  '5': 'Staten Island'
+};
+
+Promise.all([
+  fetch(parksAPI).then(res => res.ok ? res.json() : []).catch(() => []),
+  fetch(foodAPI).then(res => res.ok ? res.json() : []).catch(() => [])
+])
+.then(([parksData, foodData]) => {
+
+  if (Array.isArray(parksData)) {
+    parksData.forEach(park => {
+      let lat = parseFloat(park.lat || park.latitude);
+      let lng = parseFloat(park.lon || park.longitude);
+
+      if (isNaN(lat) && park.multipolygon && park.multipolygon.coordinates) {
+        lng = park.multipolygon.coordinates[0][0][0][0];
+        lat = park.multipolygon.coordinates[0][0][0][1];
+      }
+
+      if (!isNaN(lat) && !isNaN(lng)) {
+        const parkMarker = L.circleMarker([lat, lng], {
+          radius: 5,
+          color: categoryColors.activities,
+          fillColor: categoryColors.activities,
+          fillOpacity: 0.8
+        }).addTo(nycMap);
+
+        const typeStr = park.typecategory || park.type || '';
+        parkMarker.bindPopup(`
+          <h3>${park.park_name || park.name || park.signname || "Park / Nature Spot"}</h3>
+          <p><strong>Category:</strong> ${typeStr || "Outdoor Park / Nature"}</p>
+          <p><strong>Borough:</strong> ${boroughMap[park.borough] || park.borough || "NYC"}</p>
+          <p><strong>Address:</strong> ${park.location || park.address || "NYC Park Location"}</p>
+        `);
+      }
+    });
+  }
+
+  if (Array.isArray(foodData)) {
+    foodData.forEach(spot => {
+      const lat = parseFloat(spot.latitude);
+      const lng = parseFloat(spot.longitude);
+
+      if (!isNaN(lat) && !isNaN(lng)) {
+        const foodMarker = L.circleMarker([lat, lng], {
+          radius: 5,
+          color: "#27ae60",
+          fillColor: "#2ecc71",
+          fillOpacity: 0.8
+        }).addTo(nycMap);
+
+        foodMarker.bindPopup(`
+          <h3>${spot.dba || "Food Spot"}</h3>
+          <p><strong>Category:</strong> Food & Drink Spot</p>
+          <p><strong>Cuisine:</strong> ${spot.cuisine_description || "Eatery"}</p>
+          <p><strong>Borough:</strong> ${spot.boro || "NYC"}</p>
+          <p><strong>Address:</strong> ${spot.building || ''} ${spot.street || ''}</p>
+        `);
+      }
+    });
+  }
+
+})
+
+fetch(funAPI, { method: "POST", body: "data=" + encodeURIComponent(funQuery) })
+  .then(res => res.ok ? res.json() : [])
+  .then(data => {
+    (data.elements || []).forEach(venue => {
+      const lat = parseFloat(venue.lat || venue.center?.lat);
+      const lng = parseFloat(venue.lon || venue.center?.lon);
+
+      if (!isNaN(lat) && !isNaN(lng)) {
+        const funMarker = L.circleMarker([lat, lng], {
+          radius: 5,
+          color: "#16a085",
+          fillColor: "#1abc9c",
+          fillOpacity: 0.85
+        }).addTo(nycMap);
+
+        funMarker.bindPopup(`
+          <h3>${venue.tags?.name || "Fun Activity Spot"}</h3>
+          <p><strong>Category:</strong> ${venue.tags?.leisure || venue.tags?.sport || "Recreation"}</p>
+          <p><strong>Type:</strong> ${venue.tags?.sport || venue.tags?.leisure || "Activity Venue"}</p>
+          <p><strong>Address:</strong> ${venue.tags?.['addr:housenumber'] || ''} ${venue.tags?.['addr:street'] || ''}</p>
+        `);
+      }
+    });
+  })
