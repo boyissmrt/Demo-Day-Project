@@ -1,194 +1,318 @@
-let nycMap = L.map('map').setView([40.7128,-74.0060], 12);
+let nycMap = L.map('map').setView([40.7128,-74.0060], 11);
+
 
 L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{
     attribution: '&copy; OpenStreetMap contributors'
 }).addTo(nycMap);
 
+
+
+
+//search input section
+let searchInput = document.getElementById("searchfield");
+let searchBtn = document.getElementById("searchbtn");
+let clearBtn = document.getElementById("clearbtn");
+
+
+let searchLocationMarker = null;
+
+
+searchBtn.addEventListener("click", function() {
+
+
+    let query = searchInput.value.trim();
+
+
+    if (query === "") {
+        return;
+    }
+
+
+    fetch(
+        `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(query + ", New York City")}`
+    )
+    .then(response => response.json())
+    .then(data => {
+
+
+        if (data.length === 0) {
+            alert("Location not found.");
+            return;
+        }
+
+
+        let latitude = parseFloat(data[0].lat);
+        let longitude = parseFloat(data[0].lon);
+
+
+        nycMap.setView([latitude, longitude], 16);
+
+
+        if (searchLocationMarker !== null) {
+            searchLocationMarker.removeFrom(nycMap);
+        }
+
+
+        searchLocationMarker = L.marker([latitude, longitude])
+            .addTo(nycMap)
+            .bindPopup(`<strong>${query}</strong>`)
+            .openPopup();
+
+
+        findNearbyMarkers(latitude, longitude);
+
+
+    })
+    .catch(error => {
+        console.error("Search error:", error);
+    });
+
+
+});
+
+
+
+
+function findNearbyMarkers(searchLat, searchLng) {
+
+
+    let nearbyLocations = [];
+
+
+    let oneMile = 1609.34;
+
+
+    for (let category in markerGroups) {
+
+
+        markerGroups[category].forEach(function(marker) {
+
+
+            let markerLocation = marker.getLatLng();
+
+
+            let distance = nycMap.distance(
+                [searchLat, searchLng],
+                [markerLocation.lat, markerLocation.lng]
+            );
+
+
+            if (distance <= oneMile) {
+
+
+                nearbyLocations.push({
+                    marker: marker,
+                    category: category,
+                    distance: distance
+                });
+
+
+            }
+
+
+        });
+
+
+    }
+
+
+    nearbyLocations.sort(function(a, b) {
+        return a.distance - b.distance;
+    });
+
+
+    let placesList = document.getElementById("places-list");
+
+
+    placesList.innerHTML = "";
+
+
+    if (nearbyLocations.length === 0) {
+
+
+        placesList.innerHTML = `
+            <p>
+                No locations were found within 1 mile.
+            </p>
+        `;
+
+
+        return;
+    }
+
+
+    nearbyLocations.forEach(function(location) {
+
+
+        let distanceInMiles =
+            (location.distance / 1609.34).toFixed(2);
+
+
+        let categoryName =
+            location.category.charAt(0).toUpperCase() +
+            location.category.slice(1);
+
+
+        let result = document.createElement("div");
+
+
+        result.classList.add("nearby-result");
+
+
+        result.innerHTML = `
+            <h3>${categoryName}</h3>
+
+
+            <p>
+                <strong>Distance:</strong>
+                ${distanceInMiles} miles away
+            </p>
+
+
+            <button class="view-marker">
+                View on map
+            </button>
+        `;
+
+
+        placesList.appendChild(result);
+
+
+        result.querySelector(".view-marker")
+            .addEventListener("click", function() {
+
+
+                let markerLocation =
+                    location.marker.getLatLng();
+
+
+                nycMap.setView(
+                    [markerLocation.lat, markerLocation.lng],
+                    17
+                );
+
+
+                location.marker.openPopup();
+
+
+            });
+
+
+    });
+
+
+}
+
+
+
+
+clearBtn.addEventListener("click", function() {
+
+
+    searchInput.value = "";
+
+
+    if (searchLocationMarker !== null) {
+
+
+        searchLocationMarker.removeFrom(nycMap);
+
+
+        searchLocationMarker = null;
+    }
+
+
+    document.getElementById("places-list").innerHTML = `
+        <p class="placeholder-text">
+            Search for a location to find nearby accessible places.
+        </p>
+    `;
+
+
+    filterMarkers("all");
+
+
+    nycMap.setView([40.7128, -74.0060], 12);
+
+
+});
+
+
+
+
 //category colors
+
 
 const categoryColors = {
     cooling: "blue",
     activities: "green",
+    food: "yellow",
     trash: "orange",
     gas: "red",
     libraries: "purple"
 };
 
-//cooling marker setup
-
-let coolingMark = L.circleMarker([40.7345,-73.9995],{
-    radius: 5,
-    color: categoryColors.cooling,
-    fillColor:categoryColors.cooling,
-    fillOpacity: 0.8
-}).addTo(nycMap);
 
 
-//cooling marker description
-coolingMark.bindPopup(`
-    <h3>Jefferson Market Library</h3>
 
-    <p>
-        <strong>Address:</strong>
-        425 Avenue of the Americas, New York, NY
-    </p>
+//marker groups
+const markerGroups = {
+    cooling: [],
+    activities: [],
+    food: [],
+    trash: [],
+    gas: [],
+    libraries: []
+};
 
-   
-        <strong>Hours:</strong>
-        <ul>
-        <li>Monday - Thursday: 10:00 AM - 8:00 PM </li>
-        <li>Friday - Saturday: 10:00 AM - 5:00 PM </li>
-        <li>Sunday: 1:00 PM - 5:00 PM </li>
-        </ul>
-   
-
-    <p><strong>Accessibility:</strong></p>
-
-    <ul>
-        <li>Wheelchair accessible</li>
-        <li>Elevator available</li>
-        <li>Accessible seating</li>
-    </ul>
-`);
-
-//activities marker
-
-let activityMark = L.circleMarker([40.74838,-74.0020],{
-    radius:5,
-    color:categoryColors.activities,
-    fillColor:categoryColors.activities,
-    fillOpacity:.8
-}).addTo(nycMap);
-
-//activity marker description
-activityMark.bindPopup(`
-    <h3>Chelsea Recreation Center</h3>
-
-    <p>
-        <strong>Address:</strong>
-        430 W 25th St, New York, NY 
-    </p>
-
-    
-        <strong>Hours:</strong>
-        <ul>
-        <li>Monday - Friday: 7:00 AM - 8:00 PM </li>
-        <li>Saturday: 8:00 AM - 4:00 PM </li>
-        <li>Sunday: 8:00 AM - 2:00 PM </li>
-        </ul>
-    
-
-    <p><strong>Accessibility:</strong></p>
-
-    <ul>
-        <li>Wheelchair accessible</li>
-        <li>Accessible seating</li>
-    </ul>
-`);
-
-//trash marker
-let trashMark = L.circleMarker([40.7536,-73.9832],{
-    radius:5,
-    color:categoryColors.trash,
-    fillColor:categoryColors.trash,
-    fillOpacity:.8
-}).addTo(nycMap);
-
-trashMark.bindPopup(`
-    <h3>Bryant Park</h3>
-
-    <p>
-        <strong>Address:</strong>
-        Bryant Park, New York, NY
-    </p>
-
-   
-        <strong>Hours:</strong>
-        <ul>
-        <li>Monday - Sunday: 7:00 AM - 11:00 PM </li>
-        </ul>
-   
-
-    <p><strong>Accessibility:</strong></p>
-
-    <ul>
-        <li>Ramps</li>
-        <li>Accessible Restrooms</li>
-        <li>Public Transit</li>
-        <li>Wheelchair accessible</li>
-        <li>Accessible seating</li>
-    </ul>
-`);
-
-//gas station marker
-let gasMark = L.circleMarker([40.7567,-73.9980],{
-    radius:5,
-    color:categoryColors.gas,
-    fillColor:categoryColors.gas,
-    fillOpacity:.8
-}).addTo(nycMap);
-gasMark.bindPopup(`
-    <h3>10 Ave Petroleum</h3>
-
-    <p>
-        <strong>Address:</strong>
-        466 10th Ave, New York, NY
-    </p>
-
-   
-        <strong>Hours:</strong>
-        <ul>
-        <li>Sunday - Saturday: Open 24/7 </li>
-        </ul>
-   
-
-    <p><strong>Accessibility:</strong></p>
-
-    <ul>
-        <li>Accessible Restrooms</li>
-        <li>Convenience store</li>
-    </ul>
-`);
+const trashCluster = L.markerClusterGroup({
+    chunkedLoading: true
+});
 
 
-//library marker
-let libraryMark = L.circleMarker([40.7532,-73.9822],{
-    radius:5,
-    color:categoryColors.libraries,
-    fillColor:categoryColors.libraries,
-    fillOpacity:.8
-}).addTo(nycMap);
-libraryMark.bindPopup(`
-    <h3>Stephen A. Schwarzman Building</h3>
 
-    <p>
-        <strong>Address:</strong>
-        476 5th Ave, New York, NY
-    </p>
+function filterMarkers(selectedCategory) {
 
-   
-        <strong>Hours:</strong>
-        <ul>
-        <li>Monday: 10:00 AM - 6:00 PM </li>
-        <li>Tuesday - Wednesday: 10:00 AM - 8:00 PM </li>
-        <li>Thursday - Saturday: 10:00 AM - 6:00 PM </li>
-        <li>Sunday: CLOSED </li>
+    for (let category in markerGroups) {
 
-        </ul>
-    
+        if (category === "trash") {
 
-    <p><strong>Accessibility:</strong></p>
+            if (selectedCategory === "all" || selectedCategory === "trash") {
+                trashCluster.addTo(nycMap);
+            } else {
+                trashCluster.removeFrom(nycMap);
+            }
 
-    <ul>
-        <li>Accessible Restrooms</li>
-        <li>Public Transit</li>
-        <li>Wheelchair accessible</li>
-        <li>Accessible seating</li>
-    </ul>
-`);
+            continue;
+        }
+
+        if (selectedCategory === "all" || category === selectedCategory) {
+
+            markerGroups[category].forEach(function(marker) {
+                marker.addTo(nycMap);
+            });
+
+        } else {
+
+            markerGroups[category].forEach(function(marker) {
+                marker.removeFrom(nycMap);
+            });
+
+        }
+    }
+}
+
+
+//filter button
+document.getElementById("filter").addEventListener("change",function(){
+    let selectedCategory = this.value;
+    filterMarkers(selectedCategory);
+})
+
 
 
 //auto marker maker for cooling
+
 
 const coolingAPI =
     "https://services6.arcgis.com/yG5s3afENB5iO9fj/ArcGIS/rest/services/CoolingCenters_PROD_view/FeatureServer/0/query" +
@@ -198,40 +322,52 @@ const coolingAPI =
     "&outSR=4326" +
     "&f=json";
 
+
 fetch(coolingAPI)
     .then(response => response.json())
     .then(data => {
 
+
        data.features.forEach(location => {
+
+
 
 
     const latitude = location.geometry.y;
     const longitude = location.geometry.x;
 
+
     const marker = L.circleMarker([latitude, longitude], {
-        radius: 5,
+        radius: 8,
         color: categoryColors.cooling,
         fillColor: categoryColors.cooling,
         fillOpacity: 0.8
     }).addTo(nycMap);
+   
+    markerGroups.cooling.push(marker);
+
 
     marker.bindPopup(`
         <h3>${location.attributes.Facility_name}</h3>
+
 
         <p>
             <strong>Address:</strong>
             ${location.attributes.Address}
         </p>
 
+
         <p>
             <strong>Borough:</strong>
             ${location.attributes.Borough_name}
         </p>
 
+
         <p>
             <strong>Accessibility:</strong>
             ${location.attributes.Accessible}
         </p>
+
 
         <p>
             <strong>Phone:</strong>
@@ -239,7 +375,9 @@ fetch(coolingAPI)
         </p>
     `);
 
+
 });
+
 
     })
     .catch(error => {
@@ -247,174 +385,614 @@ fetch(coolingAPI)
     });
 
 
-//Auto marker maker for activities (Parks , Entertainment, Food)
+    //Auto marker maker for activities (Parks , Entertainment, Food)
+//activities
 
-const parksAPI = "https://data.cityofnewyork.us/resource/enfh-gkve.json?$limit=300";
-const funAPI = "https://maps.mail.ru/osm/tools/overpass/api/interpreter";
-const funQuery = `[out:json][timeout:25];
-(
-  node["leisure"="bowling_alley"](40.4774,-74.2591,40.9176,-73.7004);
-  node["leisure"="amusement_arcade"](40.4774,-74.2591,40.9176,-73.7004);
-  node["leisure"~"adult_gaming_centre|escape_game|ice_rink|miniature_golf"](40.4774,-74.2591,40.9176,-73.7004);
-  node["amenity"="cinema"](40.4774,-74.2591,40.9176,-73.7004);
-  node["sport"~"billiards|pool|laser_tag|darts"](40.4774,-74.2591,40.9176,-73.7004);
-);
-out 300;`;
-const foodAPI = "https://data.cityofnewyork.us/resource/43nn-pn8j.json?$where=latitude%20IS%20NOT%20NULL%20AND%20latitude!=%270%27&$limit=200";
+const parksAPI =
+    "https://data.cityofnewyork.us/resource/enfh-gkve.geojson?$limit=500";
 
-const funSpots = [
-  { name: "Chinatown Fair Family Fun Center", lat: 40.7142, lng: -73.9980, category: "amusement_arcade", address: "8 Mott Street" },
-  { name: "Dave & Buster's", lat: 40.7560, lng: -73.9888, category: "amusement_arcade", address: "234 West 42nd Street" },
-  { name: "The Escape Game", lat: 40.7505, lng: -73.9785, category: "escape_game", address: "295 Madison Avenue" },
-  { name: "SPIN New York", lat: 40.7408, lng: -73.9875, category: "table_tennis", address: "48 East 23rd Street" },
-  { name: "AMC Empire 25", lat: 40.7563, lng: -73.9897, category: "cinema", address: "234 West 42nd Street" }
-];
 
-const boroughMap = {
-  'M': 'Manhattan', 
-  'B': 'Brooklyn', 
-  'Q': 'Queens', 
-  'X': 'Bronx', 
-  'R': 'Staten Island',
-  '1': 'Manhattan',
-  '2': 'Bronx',
-  '3': 'Brooklyn',
-  '4': 'Queens',
-  '5': 'Staten Island'
-};
+function createActivityMarker(latitude, longitude, name, category, address) {
 
-const activityLayerGroup = L.layerGroup().addTo(nycMap);
+    const activityMarker = L.circleMarker(
+        [latitude, longitude],
+        {
+            radius: 8,
+            color: categoryColors.activities,
+            fillColor: categoryColors.activities,
+            fillOpacity: 0.8
+        }
+    ).addTo(nycMap);
 
-function renderActivityMarkers(parksData, foodData) {
-  activityLayerGroup.clearLayers();
+    markerGroups.activities.push(activityMarker);
 
-  if (Array.isArray(parksData)) {
-    parksData.forEach(park => {
-      let lat = parseFloat(park.lat || park.latitude);
-      let lng = parseFloat(park.lon || park.longitude);
+    activityMarker.bindPopup(`
+        <h3>${name}</h3>
 
-      if (isNaN(lat) && park.multipolygon && park.multipolygon.coordinates) {
-        lng = park.multipolygon.coordinates[0][0][0][0];
-        lat = park.multipolygon.coordinates[0][0][0][1];
-      }
+        <p>
+            <strong>Category:</strong>
+            ${category}
+        </p>
 
-      if (!isNaN(lat) && !isNaN(lng)) {
-        const parkMarker = L.circleMarker([lat, lng], {
-          radius: 5,
-          color: categoryColors.activities,
-          fillColor: categoryColors.activities,
-          fillOpacity: 0.8
-        }).addTo(activityLayerGroup);
+        <p>
+            <strong>Address:</strong>
+            ${address}
+        </p>
 
-        const typeStr = park.typecategory || park.type || '';
-        parkMarker.bindPopup(`
-          <h3>${park.park_name || park.name || park.signname || "Park / Nature Spot"}</h3>
-          <p><strong>Category:</strong> ${typeStr || "Outdoor Park / Nature"}</p>
-          <p><strong>Borough:</strong> ${boroughMap[park.borough] || park.borough || "NYC"}</p>
-          <p><strong>Address:</strong> ${park.location || park.address || "NYC Park Location"}</p>
-        `);
-      }
-    });
-  }
-
-  if (Array.isArray(foodData)) {
-    foodData.forEach(spot => {
-      const lat = parseFloat(spot.latitude);
-      const lng = parseFloat(spot.longitude);
-
-      if (!isNaN(lat) && !isNaN(lng)) {
-        const foodMarker = L.circleMarker([lat, lng], {
-          radius: 5,
-          color: "#27ae60",
-          fillColor: "#2ecc71",
-          fillOpacity: 0.8
-        }).addTo(activityLayerGroup);
-
-        foodMarker.bindPopup(`
-          <h3>${spot.dba || "Food Spot"}</h3>
-          <p><strong>Category:</strong> Food & Drink Spot</p>
-          <p><strong>Cuisine:</strong> ${spot.cuisine_description || "Eatery"}</p>
-          <p><strong>Borough:</strong> ${spot.boro || "NYC"}</p>
-          <p><strong>Address:</strong> ${spot.building || ''} ${spot.street || ''}</p>
-        `);
-      }
-    });
-  }
+        <p>
+            <strong>Accessibility:</strong><br>
+            Contact the facility for specific accessibility information.
+        </p>
+    `);
 }
 
-const cachedActivities = JSON.parse(localStorage.getItem("nycActivities") || "null");
-if (cachedActivities) {
-  renderActivityMarkers(cachedActivities.parks, cachedActivities.food);
+
+function getPolygonCenter(coordinates) {
+
+    let points = [];
+
+    function collectPoints(coords) {
+
+        if (
+            Array.isArray(coords) &&
+            coords.length >= 2 &&
+            typeof coords[0] === "number" &&
+            typeof coords[1] === "number"
+        ) {
+
+            points.push(coords);
+
+        } else if (Array.isArray(coords)) {
+
+            coords.forEach(collectPoints);
+
+        }
+
+    }
+
+    collectPoints(coordinates);
+
+
+    if (points.length === 0) {
+        return null;
+    }
+
+
+    let totalLongitude = 0;
+    let totalLatitude = 0;
+
+
+    points.forEach(point => {
+
+        totalLongitude += point[0];
+        totalLatitude += point[1];
+
+    });
+
+
+    return {
+        longitude: totalLongitude / points.length,
+        latitude: totalLatitude / points.length
+    };
 }
 
-Promise.all([
-  fetch(parksAPI).then(res => res.ok ? res.json() : []).catch(() => []),
-  fetch(foodAPI).then(res => res.ok ? res.json() : []).catch(() => [])
-])
-.then(([parksData, foodData]) => {
-  if (parksData.length || foodData.length) {
-    localStorage.setItem("nycActivities", JSON.stringify({ parks: parksData, food: foodData }));
-    renderActivityMarkers(parksData, foodData);
-  }
+
+fetch(parksAPI)
+.then(response => {
+
+    if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+    }
+
+    return response.json();
+
 })
-.catch(error => console.error("Error combining activities APIs:", error));
+.then(data => {
 
-function addFunMarker(name, lat, lng, category, address) {
-  const funMarker = L.circleMarker([lat, lng], {
-    radius: 5,
-    color: "#16a085",
-    fillColor: "#1abc9c",
-    fillOpacity: 0.85
-  }).addTo(nycMap);
+    console.log("Parks GeoJSON:", data);
 
-  funMarker.bindPopup(`
-    <h3>${name}</h3>
-    <p><strong>Category:</strong> ${category}</p>
-    <p><strong>Type:</strong> ${category}</p>
-    <p><strong>Address:</strong> ${address}</p>
-  `);
-}
+    console.log(
+        "Number of park records:",
+        data.features.length
+    );
 
-funSpots.forEach(spot => {
-  addFunMarker(spot.name, spot.lat, spot.lng, spot.category, spot.address);
+
+    data.features.forEach(location => {
+
+        if (
+            !location.geometry ||
+            !location.geometry.coordinates
+        ) {
+            return;
+        }
+
+
+        const center = getPolygonCenter(
+            location.geometry.coordinates
+        );
+
+
+        if (!center) {
+            return;
+        }
+
+
+        const properties = location.properties || {};
+
+
+        createActivityMarker(
+
+            center.latitude,
+            center.longitude,
+
+            properties.park_name ||
+            properties.name ||
+            "NYC Park",
+
+            properties.typecategory ||
+            properties.subcategory ||
+            "Park",
+
+            properties.address ||
+            properties.location ||
+            "NYC"
+
+        );
+
+    });
+
+
+    console.log(
+        "Activities after parks:",
+        markerGroups.activities.length
+    );
+
+})
+.catch(error => {
+
+    console.error(
+        "Error loading parks:",
+        error
+    );
+
 });
 
-const cachedFunSpots = JSON.parse(localStorage.getItem("nycFunSpots") || "null");
-if (Array.isArray(cachedFunSpots)) {
-  cachedFunSpots.forEach(venue => {
-    const lat = parseFloat(venue.lat || venue.center?.lat);
-    const lng = parseFloat(venue.lon || venue.center?.lon);
-    if (!isNaN(lat) && !isNaN(lng)) {
-      addFunMarker(
-        venue.tags?.name || "Fun Activity Spot",
-        lat,
-        lng,
-        venue.tags?.leisure || venue.tags?.sport || "Recreation",
-        `${venue.tags?.['addr:housenumber'] || ''} ${venue.tags?.['addr:street'] || ''}`
-      );
-    }
-  });
+
+
+
+
+
+
+
+
+
+
+
+
+
+//food
+
+const foodAPI =
+    "https://data.cityofnewyork.us/resource/43nn-pn8j.json" +
+    "?$select=camis,dba,building,street,boro,zipcode,latitude,longitude,grade,cuisine_description,inspection_date" +
+    "&$where=latitude IS NOT NULL " +
+    "AND longitude IS NOT NULL " +
+    "AND latitude != 0 " +
+    "AND longitude != 0 " +
+    "&$order=inspection_date DESC" +
+    "&$limit=5000";
+
+
+function createFoodMarker(
+    latitude,
+    longitude,
+    name,
+    address,
+    cuisine,
+    grade
+) {
+
+    const foodMarker = L.circleMarker(
+        [latitude, longitude],
+        {
+            radius: 8,
+            color: categoryColors.food,
+            fillColor: categoryColors.food,
+            fillOpacity: 0.8
+        }
+    ).addTo(nycMap);
+
+
+    markerGroups.food.push(foodMarker);
+
+
+    foodMarker.bindPopup(`
+        <h3>${name}</h3>
+
+        <p>
+            <strong>Category:</strong>
+            Food & Drink
+        </p>
+
+        <p>
+            <strong>Cuisine:</strong>
+            ${cuisine || "Not available"}
+        </p>
+
+        <p>
+            <strong>Address:</strong>
+            ${address}
+        </p>
+
+        <p>
+            <strong>Health Grade:</strong>
+            ${grade || "Not available"}
+        </p>
+
+        <p>
+            <strong>Accessibility:</strong><br>
+            Contact the facility for specific accessibility information.
+        </p>
+    `);
 }
 
-fetch(funAPI, { method: "POST", body: "data=" + encodeURIComponent(funQuery) })
-  .then(res => res.ok ? res.json() : [])
-  .then(data => {
-    if (Array.isArray(data.elements) && data.elements.length) {
-      localStorage.setItem("nycFunSpots", JSON.stringify(data.elements));
-    }
-    (data.elements || []).forEach(venue => {
-      const lat = parseFloat(venue.lat || venue.center?.lat);
-      const lng = parseFloat(venue.lon || venue.center?.lon);
 
-      if (!isNaN(lat) && !isNaN(lng)) {
-        addFunMarker(
-          venue.tags?.name || "Fun Activity Spot",
-          lat,
-          lng,
-          venue.tags?.leisure || venue.tags?.sport || "Recreation",
-          `${venue.tags?.['addr:housenumber'] || ''} ${venue.tags?.['addr:street'] || ''}`
-        );
-      }
+fetch(foodAPI)
+.then(response => {
+
+    if (!response.ok) {
+        throw new Error(`HTTP error: ${response.status}`);
+    }
+
+    return response.json();
+
+})
+.then(data => {
+
+    console.log(
+        "Food inspection records:",
+        data.length
+    );
+
+
+    const restaurants = new Map();
+
+
+    data.forEach(location => {
+
+        const latitude =
+            parseFloat(location.latitude);
+
+        const longitude =
+            parseFloat(location.longitude);
+
+
+        if (
+            isNaN(latitude) ||
+            isNaN(longitude)
+        ) {
+            return;
+        }
+
+
+        const restaurantID =
+            location.camis ||
+            `${latitude},${longitude},${location.dba}`;
+
+
+     
+        if (!restaurants.has(restaurantID)) {
+
+            restaurants.set(
+                restaurantID,
+                location
+            );
+
+        }
+
     });
-  })
-  .catch(error => console.error("Error loading fun activities:", error));
+
+
+    console.log(
+        "Unique food locations:",
+        restaurants.size
+    );
+
+
+    restaurants.forEach(location => {
+
+        const latitude =
+            parseFloat(location.latitude);
+
+        const longitude =
+            parseFloat(location.longitude);
+
+
+        const address =
+            `${location.building || ""} ` +
+            `${location.street || ""}, ` +
+            `${location.boro || ""} ` +
+            `${location.zipcode || ""}`;
+
+
+        createFoodMarker(
+
+            latitude,
+            longitude,
+
+            location.dba ||
+            "Food Location",
+
+            address,
+
+            location.cuisine_description,
+
+            location.grade
+
+        );
+
+    });
+
+
+    console.log(
+        "Food markers loaded:",
+        markerGroups.food.length
+    );
+
+})
+.catch(error => {
+
+    console.error(
+        "Error loading food locations:",
+        error
+    );
+
+});
+
+
+//trash API
+const trashAPI =
+    "https://data.cityofnewyork.us/resource/8znf-7b2c.json?$limit=5000";
+
+fetch(trashAPI)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error: ${response.status}`);
+        }
+
+        return response.json();
+    })
+    .then(data => {
+
+        console.log("Trash API response:", data);
+        console.log("First trash record:", data[0]);
+
+        data.forEach(location => {
+
+            if (!location.point ||
+                !location.point.coordinates) {
+                console.log("No coordinates:", location);
+                return;
+            }
+
+            const longitude =
+                parseFloat(location.point.coordinates[0]);
+
+            const latitude =
+                parseFloat(location.point.coordinates[1]);
+
+            if (isNaN(latitude) || isNaN(longitude)) {
+                return;
+            }
+
+            const trashMarker = L.marker(
+                [latitude, longitude],
+                {
+                    icon: L.divIcon({
+                        className: "trash-marker",
+
+                        html: `
+                            <div class="trash-dot"></div>
+                        `,
+
+                        iconSize: [18, 18],
+                        iconAnchor: [9, 9]
+                    })
+                }
+            );
+
+            trashMarker.bindPopup(`
+                <h3>Recycling Bin</h3>
+
+                <p>
+                    <strong>Location:</strong><br>
+                    ${location.location_description || "NYC"}
+                </p>
+
+                <p>
+                    <strong>Site Type:</strong><br>
+                    ${location.baskettype || "Public Recycling Bin"}
+                </p>
+            `);
+
+            markerGroups.trash.push(trashMarker);
+            trashCluster.addLayer(trashMarker);
+        });
+
+        trashCluster.addTo(nycMap);
+
+        console.log(
+            "Trash markers in cluster:",
+            markerGroups.trash.length
+        );
+    })
+    .catch(error => {
+        console.error(
+            "Error loading recycling bins:",
+            error
+        );
+    });
+
+
+    // gas station API
+const gasAPI =
+"https://data.ny.gov/resource/wn3j-2ia4.json?$limit=1000";
+
+function isInNYC(lat, lng) {
+    return (
+        lat >= 40.4774 &&
+        lat <= 40.9176 &&
+        lng >= -74.2591 &&
+        lng <= -73.7004
+    );
+}
+
+fetch(gasAPI)
+.then(response => response.json())
+.then(data => {
+
+    data.forEach(location => {
+
+        if (!location.georeference) {
+            return;
+        }
+
+        const coordinates = location.georeference.coordinates;
+
+        const longitude = parseFloat(coordinates[0]);
+        const latitude = parseFloat(coordinates[1]);
+
+        if (isNaN(latitude) || isNaN(longitude)) {
+            return;
+        }
+
+        if (!isInNYC(latitude, longitude)) {
+            return;
+        }
+
+        const gasMarker = L.circleMarker(
+            [latitude, longitude],
+            {
+                radius: 8,
+                color: categoryColors.gas,
+                fillColor: categoryColors.gas,
+                fillOpacity: 0.8
+            }
+        ).addTo(nycMap);
+
+        markerGroups.gas.push(gasMarker);
+
+        gasMarker.bindPopup(`
+            <h3>${location.station_name || "Gas Station"}</h3>
+
+            <p>
+                <strong>Address:</strong><br>
+                ${location.address || "N/A"}<br>
+                ${location.city || ""}, ${location.st || ""} ${location.zip || ""}
+            </p>
+
+            <p>
+                <strong>Accessibility:</strong><br>
+                Contact the station for specific accessibility information.
+            </p>
+        `);
+
+    });
+
+    console.log(
+        "Gas stations loaded:",
+        markerGroups.gas.length
+    );
+
+})
+.catch(error => {
+    console.error(
+        "Error loading gas stations:",
+        error
+    );
+});
+
+
+
+// library API
+const libraryAPI =
+    "https://data.cityofnewyork.us/api/v3/views/feuq-due4/query.geojson?accessType=DOWNLOAD";
+
+fetch(libraryAPI)
+    .then(response => {
+        if (!response.ok) {
+            throw new Error(`HTTP error: ${response.status}`);
+        }
+
+        return response.json();
+    })
+    .then(data => {
+
+        console.log("Library API response:", data);
+        console.log("Library features:", data.features.length);
+        console.log("First library:", data.features[0]);
+
+        data.features.forEach(location => {
+
+            if (!location.geometry ||
+                !location.geometry.coordinates) {
+                return;
+            }
+
+            const longitude =
+                parseFloat(location.geometry.coordinates[0]);
+
+            const latitude =
+                parseFloat(location.geometry.coordinates[1]);
+
+            if (isNaN(latitude) || isNaN(longitude)) {
+                return;
+            }
+
+            const libraryMarker = L.circleMarker(
+                [latitude, longitude],
+                {
+                    radius: 8,
+                    color: categoryColors.libraries,
+                    fillColor: categoryColors.libraries,
+                    fillOpacity: 0.8
+                }
+            ).addTo(nycMap);
+
+            markerGroups.libraries.push(libraryMarker);
+
+            const properties = location.properties || {};
+
+            libraryMarker.bindPopup(`
+                <h3>
+                    ${properties.name ||
+                      properties.facname ||
+                      properties.facility_name ||
+                      "Library"}
+                </h3>
+
+                <p>
+                <strong>Address:</strong><br>
+                ${properties.housenum || ""} ${properties.streetname || ""}
+                </p>
+
+                <p>
+                    <strong>Accessibility:</strong><br>
+                    Contact the library for specific accessibility information.
+                </p>
+            `);
+
+        });
+
+        console.log(
+            "Libraries loaded:",
+            markerGroups.libraries.length
+        );
+
+    })
+    .catch(error => {
+        console.error(
+            "Error loading libraries:",
+            error
+        );
+    });

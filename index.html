@@ -1,210 +1,341 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>NYC Accessibility</title>
-    
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    
-    <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NYC Accessibility</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.5.3/dist/MarkerCluster.Default.css">
+
+    <link rel="stylesheet" href="style.css">
 </head>
 <body>
 
-    <header>
-        <h1>NYC Accessibility</h1>
-    </header>
-
-    <main class="container">
-        <section class="filters-section">
-            <h2>Filter Places Based on Categories Below</h2>
-            <div class="filter-buttons">
-                <a href="#cooling">
-                    <button class="filter-btn active" data-category="cooling">Cooling Stations</button>
-                </a>
-                <a href="#activities">
-                    <button class="filter-btn" data-category="activities">Activities</button>
-                </a>
-                <a href="#trash">
-                    <button class="filter-btn" data-category="trash">Trash Cans</button>
-
-                </a>
-                <a href="#gas">
-                    <button class="filter-btn" data-category="gas">Gas Stations</button>
-
-                </a>
-                <a href="#libraries">
-                    <button class="filter-btn" data-category="libraries">Libraries</button>
-
-                </a>
-            </div>
-        </section>
-
-        <section class="map-section">
-            <div id="map" class="map"></div>
-        </section>
-
-        <section class="places-section">
-            <h2>Near You</h2>
-            <div id="places-list" class="places-list">
-                <p class="placeholder-text">Select a category or click a pin on the map to see local details.</p>
-            </div>
-        </section>
-
-        <section id="cooling">
-            <h2>Cooling Areas NYC</h2>
-            <p>
-                Find nearby cooling centers with air-conditioning to stay safe during periods of extreme heat.
-            </p>
-
-            <h3> Accessibility info </h3>
-            <ul>
-                <li>Wheelchair access</li>
-                <li>Elevator availability</li>
-                <li>Seating areas</li>
-                <li>Indoor air conditioning spaces</li>
-                <li>Free public bathrooms</li>
-            </ul>
-           
-            <h3> Things to Know </h3>
-            <ul>
-                <li>Hours and availability vary in different locations</li>
-                <li>Services can change during heat emergencies</li>
-                <li>Certain sites may be exclusively for certain ages </li>
 
 
-            </ul>
+    <header>
+        <h1>NYC Accessibility</h1>
+    </header>
 
-            <h3 class="hours">Cooling Station Hours</h3>
-            <p> Hours vary by location. Whilst most centers operate from daytime to early evening hours, the schedules can be changed during heat emergencies.</p>
+    <nav>
+        <a href="index.html">Home</a>
+        <a href="credits.html">Credits</a>
+    </nav>
 
-            <a href="#map">
-            <button class = "map-btn"> View on map </button>
-            </a>
-            
-            <h3>Extra Help</h3>
-            <p class="help">For more questions in regards to a cooling center, you can call 311.</p>
-        </section>
+    <main class="container">
+        <section class="filters-section">
+            <h2>Filter Places Based on Categories Below</h2>
+            <div class="filter-buttons">
+                <a href="#cooling">
+                    <button class="filter-btn active" data-category="cooling">Cooling Stations</button>
+                </a>
+                <a href="#activities">
+                    <button class="filter-btn" data-category="activities">Activities</button>
+                </a>
+                <a href="#food">
+                    <button class="filter-btn" data-category="food">Food</button>
+                </a>
+                <a href="#trash">
+                    <button class="filter-btn" data-category="trash">Trash Cans</button>
 
-        <section id="activities">
-            <h2>NYC Activities</h2>
-            <p>
-                Find accessible museums, parks, and other activities throughout New York City.
-            </p>
-            <h3>Accessibility Info</h3>
-            <ul>
-                <li>Accessible seating</li>
-                <li>Accessible bathrooms</li>
-                <li>Wheelchair friendly entrances</li>
-            </ul>
 
-            <h3>Hours</h3>
-            <p>
-                Hours can vary depending on the activity and the day. More details can be found on the location of the website.
-            </p>
-            <a href="#map">
-            <button class = "map-btn"> View on map </button>
-            </a>
-            
-            <h3>Extra Help</h3>
-            <p class="help">
-                Contact the facility directly to get specifics accessibility information.
-            </p>
-        </section>
 
-        <section id="trash">
-            <h2>Trash/Recycling Locations</h2>
+                </a>
+                <a href="#gas">
+                    <button class="filter-btn" data-category="gas">Gas Stations</button>
 
-            <p> 
-                Find nearby public trash cans and recycling bins throughout New York City
-            </p>
 
-            <h3>Accessibility Info</h3>
-            <ul>
-                <li>Bins are located near pathways</li>
-                <li>Clear space near the garbage areas</li>
-            </ul>
 
-            <h3>Availability</h3>
-            <p>Public trash and recycling bins are typically available throughout the day, however, the conditions of the bins may vary depending on locations.</p>
+                </a>
+                <a href="#libraries">
+                    <button class="filter-btn" data-category="libraries">Libraries</button>
 
-            <a href="#map">
-            <button class = "map-btn"> View on map </button>
-            </a>
-        </section>
 
-        <section id="gas">
-            <h2>Gas Pump Locations</h2>
 
-            <p>Find nearby gas stations and information that makes fueling and accessibility easier.</p>
+                </a>
+            </div>
+        </section>
 
-            <h3>Accessibility Info</h3>
-            <ul>
-                <li>Parking spaces</li>
-                <li>Accessible entrances</li>
-                <li>Fuel Pumps</li>
-                <li>Public bathrooms</li>
-                <li>Public convenience store areas</li>
-            </ul>
 
-            <h3> Things to Know</h3>
-            <ul>
-                <li>Different stations have different accessibility features.</li>
 
-            </ul>
-            
-            <h3>Hours</h3>
-            <p>Hours vary depending on the location, whilst some locations may be 24/7, others may have limited hours.</p>
+        <section class="map-section">
+            <div id="map" class="map"></div>
+            <label for="filter">Filter by category:</label>
+            <select id="filter">
+                <option value="all">All locations</option>
+                <option value="cooling">Cooling Stations</option>
+                <option value="activities">Activities</option>
+                <option value="food">Food</option>
+                <option value="trash">Trash/Recycling</option>
+                <option value="gas">Gas Stations</option>
+                <option value="libraries">Libraries</option>
+            </select>
+        </section>
 
-            <a href="#map">
-                <button class = "map-btn"> View on map </button>
-            </a>
 
-            <h3>Extra Help</h3>
-            <p class="help">
-                Contact the gas station directly for any accessibility questions.
-            </p>
-        </section>
-        </section>
 
-        <section id="libraries">
-            <h2>NYC Libraries</h2>
-            <p>
-                Find nearby libraries that provide public seating, technology, and resources for the community.
-            </p>
+        <section class="places-section">
+            <h2>Near You</h2>
+            <div id="places-list" class="places-list">
+                <p class="placeholder-text">Select a category or click a pin on the map to see local details.</p>
+            </div>
+            <div class="searchcontrol">
+                <input id="searchfield"
+            type="text"
+            placeholder="Find a location near you">
+            <button id="searchbtn">Search</button>
+            <button id="clearbtn">Clear</button>
+            </div>
 
-            <h3> Accessibility Information</h3>
-            <ul>
-                <li>Elevator availability</li>
-                <li>Public bathrooms</li>
-                <li>Free technology and study materials</li>
-                <li>Public seating and study areas</li>
-            </ul>
 
-            <h3>Things to Know</h3>
-            <ul>
-                <li>Different branches have different operating hours.</li>
-                <li>Services can differ based on the library branch.</li>
-            </ul>
 
-            <h3>Library Hours</h3>
-            <p>
-                Libary hours vary based on branch and holidays.
-            </p>
 
-            <a href="#map">
-                <button class = "map-btn"> View on map </button>
-            </a>
 
-            <h3>Extra Help</h3>
-            <p class="help">
-                Contact your library branch for questions about accessibility.
-            </p>
-        </section>
-    </main>
+        </section>
 
-    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-    
-    <script src="script.js"></script>
+
+
+        <section id="cooling">
+            <h2>Cooling Areas NYC</h2>
+            <p>
+                Find nearby cooling centers with air-conditioning to stay safe during periods of extreme heat.
+            </p>
+
+
+
+            <h3> Accessibility info </h3>
+            <ul>
+                <li>Wheelchair access</li>
+                <li>Elevator availability</li>
+                <li>Seating areas</li>
+                <li>Indoor air conditioning spaces</li>
+                <li>Free public bathrooms</li>
+            </ul>
+
+            <h3> Things to Know </h3>
+            <ul>
+                <li>Hours and availability vary in different locations</li>
+                <li>Services can change during heat emergencies</li>
+                <li>Certain sites may be exclusively for certain ages </li>
+
+
+
+
+
+
+
+            </ul>
+
+
+
+            <h3 class="hours">Cooling Station Hours</h3>
+            <p> Hours vary by location. Whilst most centers operate from daytime to early evening hours, the schedules can be changed during heat emergencies.</p>
+
+
+
+            <a href="#map">
+            <button class = "map-btn"> View on map </button>
+            </a>
+
+            <h3>Extra Help</h3>
+            <p class="help">For more questions in regards to a cooling center, you can call 311.</p>
+        </section>
+
+
+
+        <section id="activities">
+            <h2>NYC Activities</h2>
+            <p>
+                Find accessible museums, parks, and other activities throughout New York City.
+            </p>
+            <h3>Accessibility Info</h3>
+            <ul>
+                <li>Accessible seating</li>
+                <li>Accessible bathrooms</li>
+                <li>Wheelchair friendly entrances</li>
+            </ul>
+
+
+
+            <h3>Hours</h3>
+            <p>
+                Hours can vary depending on the activity and the day. More details can be found on the location of the website.
+            </p>
+            <a href="#map">
+            <button class = "map-btn"> View on map </button>
+            </a>
+
+            <h3>Extra Help</h3>
+            <p class="help">
+                Contact the facility directly to get specifics accessibility information.
+            </p>
+        </section>
+
+
+
+        <section id="trash">
+            <h2>Trash/Recycling Locations</h2>
+
+
+
+            <p>
+                Find nearby public trash cans and recycling bins throughout New York City
+            </p>
+
+
+
+            <h3>Accessibility Info</h3>
+            <ul>
+                <li>Bins are located near pathways</li>
+                <li>Clear space near the garbage areas</li>
+            </ul>
+
+
+
+            <h3>Availability</h3>
+            <p>Public trash and recycling bins are typically available throughout the day, however, the conditions of the bins may vary depending on locations.</p>
+
+
+
+            <a href="#map">
+            <button class = "map-btn"> View on map </button>
+            </a>
+        </section>
+
+        <section id="food">
+            <h2>Food Locations</h2>
+
+
+
+            <p>
+                Find nearby food spots in New York City
+            </p>
+
+
+
+            <h3>Accessibility Info</h3>
+            <ul>
+                <li>Seating Areas, though buying an item to seat is a possibility</li>
+                <li>Bathrooms may be available</li>
+            </ul>
+
+
+
+            <h3>Availability</h3>
+            <p>Hours vary based on location.</p>
+
+
+
+            <a href="#map">
+            <button class = "map-btn"> View on map </button>
+            </a>
+        </section>
+
+        <section id="gas">
+            <h2>Gas Pump Locations</h2>
+
+
+
+            <p>Find nearby gas stations and information that makes fueling and accessibility easier.</p>
+
+
+
+            <h3>Accessibility Info</h3>
+            <ul>
+                <li>Parking spaces</li>
+                <li>Accessible entrances</li>
+                <li>Fuel Pumps</li>
+                <li>Public bathrooms</li>
+                <li>Public convenience store areas</li>
+            </ul>
+
+
+
+            <h3> Things to Know</h3>
+            <ul>
+                <li>Different stations have different accessibility features.</li>
+
+
+
+            </ul>
+
+            <h3>Hours</h3>
+            <p>Hours vary depending on the location, whilst some locations may be 24/7, others may have limited hours.</p>
+
+
+
+            <a href="#map">
+                <button class = "map-btn"> View on map </button>
+            </a>
+
+
+
+            <h3>Extra Help</h3>
+            <p class="help">
+                Contact the gas station directly for any accessibility questions.
+            </p>
+        </section>
+
+
+
+
+
+        <section id="libraries">
+            <h2>NYC Libraries</h2>
+            <p>
+                Find nearby libraries that provide public seating, technology, and resources for the community.
+            </p>
+
+
+
+            <h3> Accessibility Information</h3>
+            <ul>
+                <li>Elevator availability</li>
+                <li>Public bathrooms</li>
+                <li>Free technology and study materials</li>
+                <li>Public seating and study areas</li>
+            </ul>
+
+
+
+            <h3>Things to Know</h3>
+            <ul>
+                <li>Different branches have different operating hours.</li>
+                <li>Services can differ based on the library branch.</li>
+            </ul>
+
+
+
+            <h3>Library Hours</h3>
+            <p>
+                Libary hours vary based on branch and holidays.
+            </p>
+
+
+
+            <a href="#map">
+                <button class = "map-btn"> View on map </button>
+            </a>
+
+
+
+            <h3>Extra Help</h3>
+            <p class="help">
+                Contact your library branch for questions about accessibility.
+            </p>
+        </section>
+    </main>
+
+
+
+
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://unpkg.com/leaflet.markercluster@1.5.3/dist/leaflet.markercluster.js"></script>
+
+    <script src="script.js"></script>
 </body>
 </html>

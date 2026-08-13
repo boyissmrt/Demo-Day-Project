@@ -1,41 +1,36 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
-  <title>Credits</title>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Credits | NYC Accessibility</title>
+  <link rel="stylesheet" href="style.css">
 </head>
-<body>
+<body class="credits-page">
+  <header>
+    <h1>NYC Accessibility</h1>
+  </header>
 
-  <h1>Credits</h1>
+  <nav aria-label="Main navigation">
+    <a href="index.html">Home</a>
+    <a href="credits.html" aria-current="page">Credits</a>
+  </nav>
 
-  <p>This website uses maps and data from the following sources:</p>
+  <main class="container credits-container">
+    <section class="credits-card">
+      <p class="eyebrow">Project resources</p>
+      <h2>Credits</h2>
+      <p>This website uses maps, tools, and public data from the following sources.</p>
 
-  <ul>
-    <li>
-      <b>Google Maps Static API</b> by Google
-      <br>
-      <a href="https://developers.google.com/maps/documentation/maps-static/overview">https://developers.google.com/maps/documentation/maps-static/overview</a>
-    </li>
-    <br>
-    <li>
-      <b>Leaflet</b>, created by Volodymyr Agafonkin and the Leaflet contributors. Map tiles by OpenStreetMap contributors.
-      <br>
-      <a href="https://leafletjs.com/">https://leafletjs.com/</a>
-    </li>
-    <br>
-    <li>
-      <b>NYC Open Data</b> by the City of New York
-      <br>
-      <a href="https://opendata.cityofnewyork.us/">https://opendata.cityofnewyork.us/</a>
-    </li>
-    <br>
-    <li>
-      <b>NYC Cooling Tower Registrations</b> dataset, provided by the NYC Department of Health and Mental Hygiene (DOHMH)
-      <br>
-      <a href="https://data.cityofnewyork.us/Health/NYC-Cooling-Tower-Registrations/y4fw-iqfr/about_data">https://data.cityofnewyork.us/Health/NYC-Cooling-Tower-Registrations/y4fw-iqfr/about_data</a>
-    </li>
-  </ul>
+      <ul class="credits-list">
+        <li><strong>Leaflet</strong><span>Interactive maps and map controls.</span><a href="https://leafletjs.com/">Visit Leaflet</a></li>
+        <li><strong>OpenStreetMap</strong><span>Map tiles and recreation location data.</span><a href="https://www.openstreetmap.org/">Visit OpenStreetMap</a></li>
+        <li><strong>NYC Open Data</strong><span>Public datasets provided by the City of New York.</span><a href="https://opendata.cityofnewyork.us/">Visit NYC Open Data</a></li>
+        <li><strong>NYC Department of Health and Mental Hygiene</strong><span>Cooling center information.</span><a href="https://data.cityofnewyork.us/">View NYC datasets</a></li>
+      </ul>
 
-  <p>Thank you to all of these sources for making their data and tools available.</p>
-
+      <p class="credits-thanks">Thank you to these organizations for making their data and tools available.</p>
+    </section>
+  </main>
 </body>
 </html>
