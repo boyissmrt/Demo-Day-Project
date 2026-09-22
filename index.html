@@ -28,35 +28,14 @@
     <main class="container">
         <section class="filters-section">
             <h2>Filter Places Based on Categories Below</h2>
-            <div class="filter-buttons">
-                <a href="#cooling">
-                    <button class="filter-btn active" data-category="cooling">Cooling Stations</button>
-                </a>
-                <a href="#activities">
-                    <button class="filter-btn" data-category="activities">Activities</button>
-                </a>
-                <a href="#food">
-                    <button class="filter-btn" data-category="food">Food</button>
-                </a>
-                <a href="#trash">
-                    <button class="filter-btn" data-category="trash">Trash Cans</button>
-
-
-
-                </a>
-                <a href="#gas">
-                    <button class="filter-btn" data-category="gas">Gas Stations</button>
-
-
-
-                </a>
-                <a href="#libraries">
-                    <button class="filter-btn" data-category="libraries">Libraries</button>
-
-
-
-                </a>
-            </div>
+                    <div class="filter-buttons" aria-label="Location categories">
+                        <button class="filter-btn" type="button" data-category="cooling">Cooling Stations</button>
+                        <button class="filter-btn" type="button" data-category="activities">Activities</button>
+                        <button class="filter-btn" type="button" data-category="food">Food</button>
+                        <button class="filter-btn" type="button" data-category="trash">Trash Cans</button>
+                        <button class="filter-btn" type="button" data-category="gas">Gas Stations</button>
+                        <button class="filter-btn" type="button" data-category="libraries">Libraries</button>
+                    </div>
         </section>
 
 
@@ -98,7 +77,8 @@
 
 
 
-        <section id="cooling">
+            <div class="category-sections">
+            <section id="cooling">
             <h2>Cooling Areas NYC</h2>
             <p>
                 Find nearby cooling centers with air-conditioning to stay safe during periods of extreme heat.
@@ -136,9 +116,7 @@
 
 
 
-            <a href="#map">
-            <button class = "map-btn"> View on map </button>
-            </a>
+            <a class="map-btn" data-category="cooling" href="#map">View on map</a>
 
             <h3>Extra Help</h3>
             <p class="help">For more questions in regards to a cooling center, you can call 311.</p>
@@ -164,9 +142,7 @@
             <p>
                 Hours can vary depending on the activity and the day. More details can be found on the location of the website.
             </p>
-            <a href="#map">
-            <button class = "map-btn"> View on map </button>
-            </a>
+            <a class="map-btn" data-category="activities" href="#map">View on map</a>
 
             <h3>Extra Help</h3>
             <p class="help">
@@ -200,9 +176,7 @@
 
 
 
-            <a href="#map">
-            <button class = "map-btn"> View on map </button>
-            </a>
+            <a class="map-btn" data-category="trash" href="#map">View on map</a>
         </section>
 
         <section id="food">
@@ -229,9 +203,7 @@
 
 
 
-            <a href="#map">
-            <button class = "map-btn"> View on map </button>
-            </a>
+            <a class="map-btn" data-category="food" href="#map">View on map</a>
         </section>
 
         <section id="gas">
@@ -267,9 +239,7 @@
 
 
 
-            <a href="#map">
-                <button class = "map-btn"> View on map </button>
-            </a>
+            <a class="map-btn" data-category="gas" href="#map">View on map</a>
 
 
 
@@ -316,9 +286,7 @@
 
 
 
-            <a href="#map">
-                <button class = "map-btn"> View on map </button>
-            </a>
+            <a class="map-btn" data-category="libraries" href="#map">View on map</a>
 
 
 
@@ -326,8 +294,9 @@
             <p class="help">
                 Contact your library branch for questions about accessibility.
             </p>
-        </section>
-    </main>
+            </section>
+            </div>
+            </main>
 
 
 

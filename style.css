@@ -24,20 +24,21 @@ body {
     background-color: var(--bg-color);
     color: var(--text-main);
     line-height: 1.6;
+    font-size: 15px;
     padding: 0 1rem;
 }
 
 header {
     background: #000000;
     border-bottom: 1px solid var(--border-color);
-    padding: 2.3rem 1rem 2rem;
+    padding: 1.75rem 1rem 1.5rem;
     margin: 0 -1rem 1rem;
     box-shadow: var(--shadow-sm);
 }
 
 h1 {
     text-align: center;
-    font-size: clamp(2rem, 5vw, 3rem);
+    font-size: clamp(1.8rem, 4vw, 2.6rem);
     font-weight: 700;
     color: var(--text-main);
     letter-spacing: .02em;
@@ -58,13 +59,13 @@ nav {
     justify-content: center;
     gap: .5rem;
     max-width: 1000px;
-    margin: 0 auto 2rem;
+    margin: 0 auto 1.5rem;
 }
 
 nav a {
     color: var(--text-muted);
     text-decoration: none;
-    padding: .65rem 1.25rem;
+    padding: .5rem 1rem;
     min-height: 44px;
     display: inline-flex;
     align-items: center;
@@ -83,7 +84,7 @@ nav a:hover, nav a:focus-visible {
 }
 
 .container {
-    max-width: 100%;
+    max-width: 1200px;
     margin: 0 auto;
     padding-bottom: 4rem;
 }
@@ -92,8 +93,8 @@ nav a:hover, nav a:focus-visible {
     background: #050a12;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
-    padding: 1.25rem 0.5rem;
-    margin-bottom: 1.5rem;
+    padding: 1rem .75rem;
+    margin-bottom: 1.25rem;
     box-shadow: var(--shadow-sm);
     width: 100%;
     box-sizing: border-box;
@@ -103,29 +104,19 @@ nav a:hover, nav a:focus-visible {
     text-align: center;
     font-size: 1.25rem;
     color: var(--text-muted);
-    margin-bottom: 1.25rem;
+    margin-bottom: 1rem;
 }
 
 .filter-buttons {
-    display: flex;
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
     justify-content: center;
-    align-items: center;
-    flex-wrap: nowrap;
-    gap: 0.2rem;
-    width: 100%;
+    align-items: stretch;
+    gap: .6rem;
+    width: min(100%, 860px);
     max-width: 100%;
     margin: 0 auto;
     box-sizing: border-box;
-}
-
-.filter-buttons a {
-    display: flex;
-    flex: 1 1 0;
-    min-width: 0;
-    margin: 0;
-    padding: 0;
-    justify-content: center;
-    text-decoration: none;
 }
 
 .filter-btn {
@@ -134,12 +125,12 @@ nav a:hover, nav a:focus-visible {
     justify-content: center;
     width: 100%;
     min-width: 0;
-    padding: 0.7rem 3.5rem;
+    padding: .55rem .75rem;
     min-height: 44px;
-    font-size: 0.85rem;
+    font-size: .8rem;
     font-weight: 500;
     line-height: 1;
-    white-space: nowrap;
+    white-space: normal;
     box-sizing: border-box;
 
     background-color: var(--card-bg);
@@ -170,7 +161,7 @@ nav a:hover, nav a:focus-visible {
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
     padding: .65rem;
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
     box-shadow: 0 18px 45px rgba(0, 0, 0, .32);
     display: flex;
     flex-direction: column;
@@ -186,8 +177,8 @@ nav a:hover, nav a:focus-visible {
 
 #map {
     width: 100%;
-    height: min(58vh, 560px);
-    min-height: 390px;
+    height: min(52vh, 500px);
+    min-height: 350px;
     border: 1px solid #294765;
     border-radius: 9px;
     overflow: hidden;
@@ -226,8 +217,8 @@ nav a:hover, nav a:focus-visible {
     background-color: #050a12;
     border: 1px solid var(--border-color);
     border-radius: var(--radius-md);
-    padding: 1.5rem;
-    margin-bottom: 2rem;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
     box-shadow: var(--shadow-sm);
 }
 
@@ -264,7 +255,7 @@ nav a:hover, nav a:focus-visible {
     align-items: center;
     justify-content: center;
     min-height: 42px;
-    padding: 0.6rem 1.25rem;
+    padding: .5rem 1rem;
     font-size: 0.95rem;
     font-weight: 500;
     line-height: 1.2;
@@ -301,6 +292,7 @@ nav a:hover, nav a:focus-visible {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    gap: 1rem;
     background-color: #000000;
 }
 
@@ -337,9 +329,10 @@ nav a:hover, nav a:focus-visible {
 
 section[id] {
     scroll-margin-top: 1rem;
+    max-width: 960px;
     border-radius: var(--radius-md);
-    padding: 2rem;
-    margin-bottom: 2rem;
+    padding: 1.1rem 1.25rem;
+    margin: 0 auto 1.25rem;
     box-shadow: var(--shadow-sm);
 }
 
@@ -350,34 +343,52 @@ section[id] > a {
 }
 
 section[id] h2 {
-    font-size: 1.75rem;
-    margin-bottom: 0.75rem;
+    font-size: 1.35rem;
+    margin-bottom: .55rem;
     text-align: left;
     color: #ffffff;
     padding: 0;
 }
 
 section[id] h3 {
-    font-size: 1.15rem;
-    margin-top: 1.25rem;
-    margin-bottom: 0.5rem;
+    font-size: 1rem;
+    margin-top: .8rem;
+    margin-bottom: .35rem;
     color: #ffffff;
 }
 
 section[id] p {
     text-align: left;
     color: #e2e8f0;
-    margin-bottom: 1rem;
+    margin-bottom: .7rem;
 }
 
 section[id] ul {
     margin-left: 1.5rem;
-    margin-bottom: 1rem;
+    margin-bottom: .7rem;
     color: #cbd5e1;
 }
 
 section[id] ul li {
     margin-bottom: 0.25rem;
+}
+
+.category-sections {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas:
+        "cooling activities"
+        "trash food"
+        "gas libraries";
+    gap: 1rem;
+    align-items: stretch;
+}
+
+.category-sections section[id] {
+    width: 100%;
+    max-width: none;
+    height: 100%;
+    margin: 0;
 }
 
 .map-btn {
@@ -386,7 +397,7 @@ section[id] ul li {
     justify-content: center;
     min-height: 42px;
     min-width: 132px;
-    padding: 0.6rem 1.25rem;
+    padding: .5rem 1rem;
     font-size: 0.95rem;
     font-weight: 500;
     line-height: 1.2;
@@ -410,31 +421,37 @@ section[id] ul li {
 }
 
 #cooling {
+    grid-area: cooling;
     background-color: rgba(59, 130, 246, 0.25);
     border: 1px solid rgba(59, 130, 246, 0.6);
 }
 
 #activities {
+    grid-area: activities;
     background-color: rgba(34, 197, 94, 0.25);
     border: 1px solid rgba(34, 197, 94, 0.6);
 }
 
 #trash {
+    grid-area: trash;
     background-color: rgba(249, 115, 22, 0.25);
     border: 1px solid rgba(249, 115, 22, 0.6);
 }
 
 #gas {
+    grid-area: gas;
     background-color: rgba(239, 68, 68, 0.25);
     border: 1px solid rgba(239, 68, 68, 0.6);
 }
 
 #libraries {
+    grid-area: libraries;
     background-color: rgba(168, 85, 247, 0.25);
     border: 1px solid rgba(168, 85, 247, 0.6);
 }
 
 #food {
+    grid-area: food;
     background-color: rgba(234, 179, 8, 0.25);
     border: 1px solid rgba(234, 179, 8, 0.6);
 }
@@ -535,6 +552,30 @@ section[id] ul li {
         margin-bottom: 1.25rem;
     }
 
+    h1 {
+        font-size: 2rem;
+    }
+
+    .filters-section {
+        padding: 1rem .75rem;
+    }
+
+    .filters-section h2 {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+
+    .filter-buttons {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: .6rem;
+    }
+
+    .filter-btn {
+        padding: .65rem .5rem;
+        font-size: .8rem;
+        white-space: normal;
+    }
+
     .map-section {
         padding: .4rem;
     }
@@ -544,7 +585,11 @@ section[id] ul li {
         height: 58vh;
     }
 
-    section[id], .places-section {
+    section[id] {
+        padding: 1rem;
+    }
+
+    .places-section {
         padding: 1.25rem;
     }
 
@@ -568,15 +613,44 @@ section[id] ul li {
     .searchcontrol button {
         flex: 1;
     }
+
+    .nearby-result {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .view-marker {
+        width: 100%;
+    }
+
+    .category-sections {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
 }
 
-@media (max-width: 520px) {
+@media (max-width: 360px) {
     .filter-buttons {
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 0.6rem !important;
+        grid-template-columns: 1fr;
     }
+
+    .category-sections {
+        grid-template-columns: 1fr;
+        grid-template-areas:
+            "cooling"
+            "activities"
+            "trash"
+            "food"
+            "gas"
+            "libraries";
+    }
+
     .filter-btn {
-        padding: 0.45rem 0.75rem !important;
-        font-size: 0.825rem !important;
+        padding: .7rem .75rem;
+        font-size: .9rem;
+    }
+
+    #map {
+        min-height: 290px;
+        height: 52vh;
     }
 }

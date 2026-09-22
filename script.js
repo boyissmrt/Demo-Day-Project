@@ -304,10 +304,40 @@ function filterMarkers(selectedCategory) {
 
 
 //filter button
-document.getElementById("filter").addEventListener("change",function(){
-    let selectedCategory = this.value;
+function selectCategory(selectedCategory) {
     filterMarkers(selectedCategory);
-})
+    document.getElementById("filter").value = selectedCategory;
+
+    document.querySelectorAll(".filter-btn").forEach(function(button) {
+        button.classList.toggle("active", button.dataset.category === selectedCategory);
+        button.setAttribute("aria-pressed", button.dataset.category === selectedCategory);
+    });
+}
+
+
+document.getElementById("filter").addEventListener("change", function() {
+    selectCategory(this.value);
+});
+
+
+document.querySelectorAll(".filter-btn").forEach(function(button) {
+    button.setAttribute("aria-pressed", "false");
+
+    button.addEventListener("click", function() {
+        const selectedCategory = button.dataset.category;
+
+        selectCategory(selectedCategory);
+
+        document.getElementById("map").scrollIntoView({ behavior: "smooth", block: "start" });
+    });
+});
+
+
+document.querySelectorAll(".map-btn[data-category]").forEach(function(button) {
+    button.addEventListener("click", function() {
+        selectCategory(button.dataset.category);
+    });
+});
 
 
 
